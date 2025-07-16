@@ -1,19 +1,6 @@
-$(document).ready(function () {
-    //必填项弹窗 
-    //关闭弹窗
-    $("body").on("click", ".closeModal", function () {
-        $("body").find(".modal-shadow").addClass("none-css");
-    })
-    //点击弹窗内容不会关闭弹窗
-    $("body").on("click", ".stopPropagation", function (e) {
-        e.stopPropagation();
-    })
-    //点击确定按钮关闭弹窗
-    $("body").on("click", ".zjEvent_mustinput_sure", function (e) {
-        $("body").find(".modal-shadow").addClass("none-css");
-    })
-})
-
+/*!
+ * 弹出框核心代码
+ */
 
 /** 
  * 1、显示dialog 针对的是Form 

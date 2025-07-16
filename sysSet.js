@@ -1,11 +1,6 @@
 //项目配置项
 var sysSet = {
     dataUrl: "http://10.50.21.219:8080/zj/",
-    // dataUrl: "/zj/",
-    // dataUrl: "http://10.50.79.253:8083/web_war_exploded/",
-    // dataUrl: "http://59.68.81.31:8899/zj/",
-    // tinyMceUrl:"http://localhost:5503/" ,
-    //  dataUrl: "http://localhost:8080/web_war_exploded/",
     // 密钥（请确保在实际应用中使用安全存储方式保存密钥）
     encryptionKey: "iT0WX6AoEtyiWlq0rV8mlu6cXQenMsdiBNbcMIGABLU=",
     //是否显示loading框  
