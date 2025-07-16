@@ -22,28 +22,37 @@ function showFormDialog(formId, temName, output, callback) {
     // 禁止底层的body滚动
     document.body.style.height = '100vh';
     document.body.style['overflow-y'] = 'hidden';
-    //绑定提交方法
-    $("#" + formId).on("click", ".saveButton", function () {
+
+    const dialog = document.getElementById(formId);
+    if (!dialog) return;
+
+    const saveButton = dialog.querySelector(".saveButton");
+    const closeButton = dialog.querySelector(".closeButton");
+
+    const saveHandler = () => {
         checkDialogForm(formId, function () {
             dataCenter['form'][formId].setOutInput(formId, output);
             callback();
-            $("#" + formId).remove();
+            dialog.remove();
             // 恢复备份
             recoveryInputState(formId);
             // 启用底层的body滚动
             document.body.style.height = 'unset';
             document.body.style['overflow-y'] = 'auto';
         });
-    });
-    //绑定关闭方法
-    $("#" + formId).on("click", ".closeButton", function () {
-        $("#" + formId).remove();
+    };
+
+    const closeHandler = () => {
+        dialog.remove();
         // 恢复备份
         recoveryInputState(formId);
         // 启用底层的body滚动
         document.body.style.height = 'unset';
         document.body.style['overflow-y'] = 'auto';
-    });
+    };
+
+    saveButton.addEventListener("click", saveHandler);
+    closeButton.addEventListener("click", closeHandler);
 }
 
 
@@ -60,22 +69,33 @@ function showFormDialogToList(formId, temName, inputObj, callback) {
     showDialog(formId, temName);
     initFormPage(formId);
     renderForm(formId);
-    $("#" + formId).on("click", ".saveButton", function () {
+
+    const dialog = document.getElementById(formId);
+    if (!dialog) return;
+
+    const saveButton = dialog.querySelector(".saveButton");
+    const closeButton = dialog.querySelector(".closeButton");
+
+    const saveHandler = () => {
         checkDialogForm(formId, function () {
-            var jsons = JSON.parse($(inputObj).val() != null ? $(inputObj).val() : '[]');
-            var formJson = dataCenter['form'][formId]['down']['formNewInfo'];
+            let jsons = JSON.parse(inputObj.value != null ? inputObj.value : '[]');
+            const formJson = dataCenter['form'][formId]['down']['formNewInfo'];
             if (isEmpty(formJson.id)) {
                 formJson['id'] = uuid();
             }
             updateJsonArrayById(jsons, formJson);
-            $(inputObj).val(JSON.stringify(jsons));
+            inputObj.value = JSON.stringify(jsons);
             callback(formId);
-            $("#" + formId).remove();
+            dialog.remove();
         });
-    });
-    $("#" + formId).on("click", ".closeButton", function () {
-        $("#" + formId).remove();
-    });
+    };
+
+    const closeHandler = () => {
+        dialog.remove();
+    };
+
+    saveButton.addEventListener("click", saveHandler);
+    closeButton.addEventListener("click", closeHandler);
 }
 
 /**
@@ -91,67 +111,84 @@ function initAjaxFormDialog(formId, temName, inputObj, callback) {
     showDialog(formId, temName);
     initFormPage(formId);
     getAllFormBlockData(formId);
-    $("#" + formId).on("click", ".saveButton", function () {
+
+    const dialog = document.getElementById(formId);
+    if (!dialog) return;
+
+    const saveButton = dialog.querySelector(".saveButton");
+    const closeButton = dialog.querySelector(".closeButton");
+
+    const saveHandler = () => {
         checkDialogForm(formId, function () {
-            var jsons = JSON.parse($(inputObj).val() != null ? $(inputObj).val() : '[]');
-            var formJson = dataCenter['form'][formId]['down']['formNewInfo'];
+            let jsons = JSON.parse(inputObj.value != null ? inputObj.value : '[]');
+            const formJson = dataCenter['form'][formId]['down']['formNewInfo'];
             if (isEmpty(formJson.id)) {
                 formJson['id'] = uuid();
             }
             updateJsonArrayById(jsons, formJson);
-            $(inputObj).val(JSON.stringify(jsons));
+            inputObj.value = JSON.stringify(jsons);
             callback(formId);
-            $("#" + formId).remove();
+            dialog.remove();
         });
-    });
-    $("#" + formId).on("click", ".closeButton", function () {
-        $("#" + formId).remove();
-    });
+    };
+
+    const closeHandler = () => {
+        dialog.remove();
+    };
+
+    saveButton.addEventListener("click", saveHandler);
+    closeButton.addEventListener("click", closeHandler);
 }
 
 //给dialog 附上id
 function initCloneTemplateDialog(temName, dialogId) {
-    var tem = template[temName];
-    $(tem).attr('id', dialogId);
-    return $(tem);
+    const templateHtml = template[temName];
+    const div = document.createElement('div');
+    div.innerHTML = templateHtml.trim();
+    const dialogElement = div.firstChild;
+    dialogElement.id = dialogId;
+    return dialogElement;
 }
 
-// flag:如果为true，就不需要默认初始化插件
-// 原因:默认有富文本，就会生成编辑器，然后调用该弹窗，弹窗中没有富文本，
-// 就会导致页面中其他弹窗的编辑器重复，因为不是所有的弹窗都用了这个方法（页面默认的弹窗有富文本的情况）
-// 或者每次生成前默认销毁编辑器
 function showDialog(dialogId, temName, flag) {
-    $("#" + dialogId).remove();
-    $("body").append(initCloneTemplateDialog(temName, dialogId));
-    //先显示再初始化，否则富文本初始化报错
-    //初始化插件
-    if (!flag) {
-        initPagePlugIn($("#" + dialogId)[0])
+    const existingDialog = document.getElementById(dialogId);
+    if (existingDialog) {
+        existingDialog.remove();
     }
-    //语言切换
-    switchLanguage($("#" + dialogId)[0])
 
-    $("#" + dialogId).show();
+    const newDialog = initCloneTemplateDialog(temName, dialogId);
+    document.body.appendChild(newDialog);
 
+    if (!flag) {
+        initPagePlugIn(newDialog);
+    }
+    switchLanguage(newDialog);
+
+    newDialog.style.display = 'block';
 }
+
 /** 
  * 类似alert弹出框
  * 有标题、内容、确定回调函数
  * @param {*} title 
  * @param {*} content 
  * @param {*} okCallback 
- * @param {*} cancelCallback 
  */
 function alertWarnDialog(title, content, okCallback) {
-    var dialogId = 'alertWarnDialogId';
+    const dialogId = 'alertWarnDialogId';
     showDialog(dialogId, 'alertWarnDialog', true);
-    $("#" + dialogId + " .alertTitle").html(title);
-    $("#" + dialogId + " .alertItemContent").html(content);
-    $("#" + dialogId + " .alertSure").click(function () {
-        if (okCallback != null || typeof (okCallback) == 'function') {
+    const dialog = document.getElementById(dialogId);
+    if (!dialog) return;
+
+    dialog.querySelector(".alertTitle").innerHTML = title;
+    dialog.querySelector(".alertItemContent").innerHTML = content;
+
+    const sureButton = dialog.querySelector(".alertSure");
+    sureButton.addEventListener('click', () => {
+        if (okCallback && typeof okCallback === 'function') {
             okCallback();
         }
-        $("#" + dialogId).remove();
+        dialog.remove();
     });
 }
 
@@ -162,66 +199,71 @@ function alertWarnDialog(title, content, okCallback) {
  * @param {*} okCallback
  * @param {*} cancelCallback
  */
-
 function confirmDialog(title, content, okCallback, cancelCallback) {
-    var dialogId = 'confirmDialogId';
+    const dialogId = 'confirmDialogId';
     showDialog(dialogId, 'confirmDialog');
-    $("#" + dialogId + " .confirmTitle").html(title);
-    $("#" + dialogId + " .confirmContent").html(content);
-    $("#" + dialogId + " .confirmSure").click(function () {
-        if (okCallback != null || typeof (okCallback) == 'function') {
+    const dialog = document.getElementById(dialogId);
+    if (!dialog) return;
+
+    dialog.querySelector(".confirmTitle").innerHTML = title;
+    dialog.querySelector(".confirmContent").innerHTML = content;
+
+    const sureButton = dialog.querySelector(".confirmSure");
+    sureButton.addEventListener('click', () => {
+        if (okCallback && typeof okCallback === 'function') {
             okCallback();
         }
-        $("#" + dialogId).remove();
+        dialog.remove();
     });
-    $("#" + dialogId + " .confirmCancel").click(function () {
-        if (cancelCallback != null || typeof (cancelCallback) == 'function') {
+
+    const cancelButton = dialog.querySelector(".confirmCancel");
+    cancelButton.addEventListener('click', () => {
+        if (cancelCallback && typeof cancelCallback === 'function') {
             cancelCallback();
         }
-        $("#" + dialogId).remove();
+        dialog.remove();
     });
 }
 
 //操作提示--没有确认按钮，延迟一秒弹框消失
 function alertDialogHide(title, content, element, time, callback) {
-    var dialogId = 'alertForOneSecondHide';
+    const dialogId = 'alertForOneSecondHide';
     showDialog(dialogId, "alertForOneSecondHideTemp");
-    $('#' + dialogId + ' .alertTitle').text(title);
-    $('#' + dialogId + ' .alertItemContent').text(content);
-    setTimeout(function () {
-        $("#" + dialogId).remove();
-        callback(element);
+    const dialog = document.getElementById(dialogId);
+    if (!dialog) return;
+
+    dialog.querySelector('.alertTitle').textContent = title;
+    dialog.querySelector('.alertItemContent').textContent = content;
+
+    setTimeout(() => {
+        dialog.remove();
+        if (callback && typeof callback === 'function') {
+            callback(element);
+        }
     }, time);
-
 }
-
 
 //   弹窗隐藏
 function modalHideAlert(classid) {
-    if (isNotEmpty(classid)) {
-        $("." + classid).hide();
-    } else {
-        $(".zj-modal").hide();
-    }
+    const modals = isNotEmpty(classid) ? document.querySelectorAll("." + classid) : document.querySelectorAll(".zj-modal");
+    modals.forEach(modal => {
+        modal.style.display = 'none';
+    });
     scrollMove();
 }
 
 // 禁止滚动
 function scrollStop() {
-    let mo = function (e) {
-        e.preventDefault();
-    };
     document.body.style.overflow = "hidden";
-    document.addEventListener("touchmove", mo, false); //禁止页面滑动
+    document.addEventListener("touchmove", preventDefault, { passive: false });
 }
 
 // 取消滑动限制
 function scrollMove() {
-    let mo = function (e) {
-        e.preventDefault();
-    };
-    document.body.style.overflow = ""; //出现滚动条
-    document.removeEventListener("touchmove", mo, false);
+    document.body.style.overflow = "";
+    document.removeEventListener("touchmove", preventDefault, { passive: false });
 }
 
-
+function preventDefault(e) {
+    e.preventDefault();
+}

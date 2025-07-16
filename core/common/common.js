@@ -209,32 +209,34 @@ function temEngin(listInfos, tem) {
  * @param {*} id
  */
 function inputSestrict(id) {
-	//加载模板到页面
-	var elems=$("#"+id+" [sestrictType]");
-	if(elems&&elems.length>0){
-		elems.each(function(i,item){
-			var sestrictType = $(item).attr("sestrictType");
-			switch(sestrictType) {
+	const container = document.getElementById(id);
+	if (!container) return;
+
+	const elems = container.querySelectorAll("[sestrictType]");
+	if (elems && elems.length > 0) {
+		elems.forEach(function (item) {
+			const sestrictType = item.getAttribute("sestrictType");
+			switch (sestrictType) {
 				case "integer":
-				numeralBySelector($(item), false, false);
-				break;
-			case "decimal-1":
-				numeralBySelector($(item), true, true, 1);
-				break;
-			case "decimal-2":
-				numeralBySelector($(item), true, true, 2);
-				break;
-			case "only-cn":
-				$(item).attr("keyup", "this.value=this.value.replace(/[^\u4e00-\u9fa5]/g,'')");
-				break;
-			case "only-en":
-				$(item).attr("keyup", "this.value=this.value.replace(/[^a-zA-Z]/g,'')");
-				break;
-			case "email":
-				break;
+					numeralBySelector(item, false, false);
+					break;
+				case "decimal-1":
+					numeralBySelector(item, true, true, 1);
+					break;
+				case "decimal-2":
+					numeralBySelector(item, true, true, 2);
+					break;
+				case "only-cn":
+					item.setAttribute("onkeyup", "this.value=this.value.replace(/[^\u4e00-\u9fa5]/g,'')");
+					break;
+				case "only-en":
+					item.setAttribute("onkeyup", "this.value=this.value.replace(/[^a-zA-Z]/g,'')");
+					break;
+				case "email":
+					break;
 				default:
-		} 
-		})
+			}
+		});
 	}
 }
 
@@ -285,11 +287,11 @@ function stampToDate(newstime, type) {
 		}
 		var date = new Date();
 		var year = newTime.getFullYear(); //年
-		var month ='-' + (newTime.getMonth() + 1 < 10 ? '0' + (newTime.getMonth() + 1) : newTime.getMonth() + 1); //月
-		var day ='-' + (newTime.getDate() < 10 ? '0' + newTime.getDate() : newTime.getDate()); //日
-		var hour =' ' + (newTime.getHours() < 10 ? '0' + newTime.getHours() : newTime.getHours());
-		var min =':' + (newTime.getMinutes() < 10 ? '0' + newTime.getMinutes() : newTime.getMinutes());
-		var sec =':' + (newTime.getSeconds() < 10 ? '0' + newTime.getSeconds() : newTime.getSeconds());
+		var month = '-' + (newTime.getMonth() + 1 < 10 ? '0' + (newTime.getMonth() + 1) : newTime.getMonth() + 1); //月
+		var day = '-' + (newTime.getDate() < 10 ? '0' + newTime.getDate() : newTime.getDate()); //日
+		var hour = ' ' + (newTime.getHours() < 10 ? '0' + newTime.getHours() : newTime.getHours());
+		var min = ':' + (newTime.getMinutes() < 10 ? '0' + newTime.getMinutes() : newTime.getMinutes());
+		var sec = ':' + (newTime.getSeconds() < 10 ? '0' + newTime.getSeconds() : newTime.getSeconds());
 		switch (type) {
 			case 1:
 				return year + month + day;
@@ -682,7 +684,7 @@ function setCookie(name, value, Hours) {
  * 获取cookie值
  */
 function getCookie(name) {
-	var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+	var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^";]*)(;|$)"));
 	if (arr != null) return unescape(arr[2]);
 	return null
 }
@@ -690,7 +692,7 @@ function getCookie(name) {
 /*
  * 跳转链接
  */
-function toUrl(url, self, clearRole=true, obj) {
+function toUrl(url, self, clearRole = true, obj) {
 	//TODO:获取当前页面所有的session的数据,待完善  朱安2020.10.22
 	// 记录oldSession，userSession
 	var cacheOldSession = sessionStorage.getItem("oldSession");
@@ -704,11 +706,11 @@ function toUrl(url, self, clearRole=true, obj) {
 	dataCenter.to['role'] = dataCenter.role;
 	dataCenter.saveSession();
 	var rev = randomWord(false, 3, 32);
-	var newurl=url+"?rev="+rev;
-	if(obj){
-		for(var key in obj){
-			newurl+="&"+key+"="+obj[key];
-		}	
+	var newurl = url + "?rev=" + rev;
+	if (obj) {
+		for (var key in obj) {
+			newurl += "&" + key + "=" + obj[key];
+		}
 	}
 	if (self) {
 		window.location.href = newurl;
@@ -720,8 +722,8 @@ function toUrl(url, self, clearRole=true, obj) {
 
 		// 页面初始化之后不会用到dataCenter.session的值，不需要处理
 		// 恢复oldSession，userSession
-		sessionStorage.setItem("oldSession",cacheOldSession);
-		sessionStorage.setItem("user",cacheUserSession);
+		sessionStorage.setItem("oldSession", cacheOldSession);
+		sessionStorage.setItem("user", cacheUserSession);
 	}
 }
 
@@ -729,20 +731,20 @@ function toUrl(url, self, clearRole=true, obj) {
 ** randomWord 产生任意长度随机字母数字组合
 ** randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
 */
-function randomWord(randomFlag, min, max){
-    var str = "",
-        range = min,
-        arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
- 
-    // 随机产生
-    if(randomFlag){
-        range = Math.round(Math.random() * (max-min)) + min;
-    }
-    for(var i=0; i<range; i++){
-        pos = Math.round(Math.random() * (arr.length-1));
-        str += arr[pos];
-    }
-    return str;
+function randomWord(randomFlag, min, max) {
+	var str = "",
+		range = min,
+		arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+	// 随机产生
+	if (randomFlag) {
+		range = Math.round(Math.random() * (max - min)) + min;
+	}
+	for (var i = 0; i < range; i++) {
+		pos = Math.round(Math.random() * (arr.length - 1));
+		str += arr[pos];
+	}
+	return str;
 }
 
 /*
@@ -867,15 +869,16 @@ function stopIt(ev) {
  * 必填红色边框提示
  */
 function setMustInputBorder(elem, mustInput, specialVertify) {
-	if ($(elem).attr("disabled") != "disabled") {
-		if (mustInput) {
-			$(elem).css("border", "1px solid " + sysJson.color.mustInput);
-			if (specialVertify) {
-				$(elem).attr("specialVertify", "true")
-			}
-		} else {
-			$(elem).css("border", "1px solid " + sysJson.color.maybeInput).removeAttr("specialVertify");
+	if (elem.disabled) return;
+
+	if (mustInput) {
+		elem.style.border = "1px solid " + sysJson.color.mustInput;
+		if (specialVertify) {
+			elem.setAttribute("specialVertify", "true");
 		}
+	} else {
+		elem.style.border = "1px solid " + sysJson.color.maybeInput;
+		elem.removeAttribute("specialVertify");
 	}
 }
 
